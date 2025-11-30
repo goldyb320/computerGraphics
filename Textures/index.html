@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fractal Terrain Generator with Textures</title>
+    <script src="wrapWebGL2.js"></script>
+    <script src="math.js"></script>
+    <script type="x-shader/x-vertex" id="vertex-shader-color">#version 300 es
+precision highp float;
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texCoord;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
+
+out vec3 worldPosition;
+out vec3 worldNormal;
+out vec3 viewDirection;
+out vec2 vTexCoord;
+
+void main() {
+    worldPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+    worldNormal = normalize(normalMatrix * normal);
+    viewDirection = normalize(-worldPosition);
+    vTexCoord = texCoord;
+    gl_Position = projectionMatrix * vec4(worldPosition, 1.0);
+}
+    </script>
+    <script type="x-shader/x-fragment" id="fragment-shader-color">#version 300 es
+precision highp float;
+
+in vec3 worldPosition;
+in vec3 worldNormal;
+in vec3 viewDirection;
+in vec2 vTexCoord;
+
+uniform vec3 lightDirection;
+uniform vec4 color;
+uniform float shininess;
+
+out vec4 fragColor;
+
+void main() {
+    vec3 normal = normalize(worldNormal);
+    vec3 viewDir = normalize(viewDirection);
+    vec3 lightDir = normalize(lightDirection);
+    
+    float diffuse = max(dot(normal, lightDir), 0.0);
+    vec3 diffuseLight = color.rgb * diffuse * (1.0 - color.a);
+    
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float specular = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    vec3 specularLight = color.rgb * specular * (3.0 * color.a);
+    
+    vec3 finalColor = diffuseLight + specularLight;
+    fragColor = vec4(finalColor, 1.0);
+}
+    </script>
+    <script type="x-shader/x-vertex" id="vertex-shader-texture">#version 300 es
+precision highp float;
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texCoord;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
+
+out vec3 worldNormal;
+out vec3 viewDirection;
+out vec2 vTexCoord;
+
+void main() {
+    vec3 worldPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+    worldNormal = normalize(normalMatrix * normal);
+    viewDirection = normalize(-worldPosition);
+    vTexCoord = texCoord;
+    gl_Position = projectionMatrix * vec4(worldPosition, 1.0);
+}
+    </script>
+    <script type="x-shader/x-fragment" id="fragment-shader-texture">#version 300 es
+precision highp float;
+
+in vec3 worldNormal;
+in vec3 viewDirection;
+in vec2 vTexCoord;
+
+uniform vec3 lightDirection;
+uniform sampler2D uTexture;
+
+out vec4 fragColor;
+
+void main() {
+    vec3 normal = normalize(worldNormal);
+    vec3 lightDir = normalize(lightDirection);
+    
+    float diffuse = max(dot(normal, lightDir), 0.0);
+    vec3 texColor = texture(uTexture, vTexCoord).rgb;
+    vec3 diffuseLight = texColor * diffuse;
+    
+    fragColor = vec4(diffuseLight, 1.0);
+}
+    </script>
+    <script src="main.js"></script>
+    <style>
+    body {
+        margin: 0; border: none; padding: 0;
+        display: flex; flex-direction: column;
+        width: 100%; height: 100vh;
+    }
+    .controls {
+        flex: 0 0 auto;
+    }
+    .controls > * { margin: 1em; }
+    .display {
+        flex-grow: 1;
+        line-height: 0rem;
+    }
+    </style>
+</head>
+<body>
+<form class="controls" action="javascript:void(0);">
+    <label>Grid size: <input id="gridsize" type="number" value="50"/></label>
+    <label>Faults: <input id="faults" type="number" value="50"/></label>
+    <label>Material: <input id="material" type="text" value=""/></label>
+    <input id="submit" type="submit" value="Regen Terrain"/>
+</form>
+<div class="display">
+    <canvas id="terrainCanvas" width="800" height="600"></canvas>
+</div>
+</body>
+</html>
+

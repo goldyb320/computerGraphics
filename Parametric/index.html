@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parametric Geometry MP</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        input[type="number"]:focus {
+            border-color: #666;
+            outline: none;
+        }
+        
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 8px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: transparent;
+            color: #333;
+            border: 2px solid #333;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: normal;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover {
+            background-color: #f5f5f5;
+            border-color: #666;
+        }
+        
+        button:active {
+            background-color: #e0e0e0;
+            transform: translateY(1px);
+        }
+        
+        #canvas {
+            border: none;
+            background-color: white;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+    
+    <script src="wrapWebGL2.js"></script>
+    <script src="math.js"></script>
+    <script src="shaders.js"></script>
+    <script src="main.js"></script>
+</head>
+<body>
+    <div class="controls">
+        <div class="control-group">
+            <label for="rings">Rings:</label>
+            <input type="number" id="rings" value="8" min="1" max="50">
+        </div>
+        
+        <div class="control-group">
+            <label for="slices">Slices:</label>
+            <input type="number" id="slices" value="12" min="3" max="50">
+        </div>
+        
+        <div class="control-group">
+            <label>
+                <input type="checkbox" id="torus"> Torus
+            </label>
+        </div>
+        
+        <button id="makeObject">Make Object</button>
+    </div>
+    
+    <canvas id="canvas" width="800" height="600"></canvas>
+</body>
+</html>
